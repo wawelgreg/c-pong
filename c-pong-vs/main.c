@@ -24,16 +24,30 @@ struct Ball {
 	float y_v;
 	int row;
 	int col;
-	float vel;
 };
 
 
 int main() {
+	struct Ball ball;
+	ball.x = SCREEN_WIDTH / 2.0;
+	ball.y = SCREEN_HEIGHT / 2.0;
+	ball.x_v = 0.0;
+	ball.y_v = 0.0;
+	ball.row = 0;
+	ball.col = 0;
+
+
 
 	while (1) {
+		// Draw border to screen string
 		draw_frame(screen, SCREEN_HEIGHT, SCREEN_WIDTH, LEN);
+		// Convert ball x/y -> row/col
 
-		printf("%s", screen);
+		// Draw ball to screen string
+
+		// Print string on terminal
+		printf("%s", screen); // Actual draw on terminal
+		// Calculate new ball position
 
 		//sleep:
 		#ifdef _WIN32
@@ -81,3 +95,5 @@ void draw_frame(char screen[], int max_h, int max_w, int len) {
 	}
 	screen[i] = '\0';
 }
+
+void 
