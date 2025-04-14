@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -13,40 +14,39 @@
 #define SCREEN_HEIGHT 25
 #define LEN (((SCREEN_WIDTH + 1) * SCREEN_HEIGHT) + 1)
 
-void draw_frame(char screen[], int max_h, int max_w, int len);
-
-char screen[LEN] = { '\0' };
-
-struct Ball {
+typedef struct ball {
 	float x;
 	float y;
 	float x_v;
 	float y_v;
 	int row;
 	int col;
-};
+} Ball;
+Ball b;
+char screen[LEN] = { '\0' };
 
+void draw_frame(char screen[], int max_h, int max_w, int len);
+void xy_to_colrow(Ball* ball_ptr);
 
 int main() {
-	struct Ball ball;
-	ball.x = SCREEN_WIDTH / 2.0;
-	ball.y = SCREEN_HEIGHT / 2.0;
-	ball.x_v = 0.0;
-	ball.y_v = 0.0;
-	ball.row = 0;
-	ball.col = 0;
+	b.x = SCREEN_WIDTH / 2.0;
+	b.y = SCREEN_HEIGHT / 2.0;
+	b.x_v = 0.0;
+	b.y_v = 0.0;
+	b.row = 0;
+	b.col = 0;
 
-
+	struct Ball* b_ptr = &b;
 
 	while (1) {
 		// Draw border to screen string
 		draw_frame(screen, SCREEN_HEIGHT, SCREEN_WIDTH, LEN);
 		// Convert ball x/y -> row/col
-
+		xy_to_colrow(b_ptr);
 		// Draw ball to screen string
-
+		
 		// Print string on terminal
-		printf("%s", screen); // Actual draw on terminal
+		printf("%s\n", screen); // Actual draw on terminal
 		// Calculate new ball position
 
 		//sleep:
@@ -66,7 +66,6 @@ int main() {
 }
 
 void draw_frame(char screen[], int max_h, int max_w, int len) {
-
 	int i = 0;
 	int row = 0;
 	int col = 0;
@@ -96,4 +95,9 @@ void draw_frame(char screen[], int max_h, int max_w, int len) {
 	screen[i] = '\0';
 }
 
-void 
+void xy_to_colrow(Ball* ball_ptr) {
+	ball_ptr->col = (int)round(ball_ptr->x);
+	ball_ptr->row = (int)round(ball_ptr->y);
+	printf("col %d row %d x %.2f y %.2f\n", (int)ball_ptr->col, (int)ball_ptr->row, ball_ptr->x, ball_ptr->y);
+}
+
