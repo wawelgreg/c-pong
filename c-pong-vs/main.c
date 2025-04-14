@@ -10,7 +10,7 @@
 
 
 
-#define SCREEN_WIDTH 80
+#define SCREEN_WIDTH 81
 #define SCREEN_HEIGHT 25
 #define LEN (((SCREEN_WIDTH + 1) * SCREEN_HEIGHT) + 1)
 
@@ -27,6 +27,7 @@ char screen[LEN] = { '\0' };
 
 void draw_frame(char screen[], int max_h, int max_w, int len);
 void xy_to_colrow(Ball* ball_ptr);
+void draw_ball(Ball* ball_ptr, int max_h, int max_w, char screen[]);
 
 int main() {
 	b.x = SCREEN_WIDTH / 2.0;
@@ -44,7 +45,7 @@ int main() {
 		// Convert ball x/y -> row/col
 		xy_to_colrow(b_ptr);
 		// Draw ball to screen string
-		
+		draw_ball(b_ptr, SCREEN_HEIGHT, SCREEN_WIDTH, screen);
 		// Print string on terminal
 		printf("%s\n", screen); // Actual draw on terminal
 		// Calculate new ball position
@@ -101,3 +102,16 @@ void xy_to_colrow(Ball* ball_ptr) {
 	printf("col %d row %d x %.2f y %.2f\n", (int)ball_ptr->col, (int)ball_ptr->row, ball_ptr->x, ball_ptr->y);
 }
 
+void draw_ball(Ball* ball_ptr, int max_h, int max_w, char screen[]) {
+	int i = 0;
+	int row_count = 0;
+	int col_count = 0;
+
+	while (row_count < ball_ptr->row) {
+		i += (max_w + 1);
+		++row_count;
+	}
+	i += ball_ptr->col;
+
+	screen[i] = '*';
+}
