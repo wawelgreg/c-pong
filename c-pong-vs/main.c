@@ -10,7 +10,7 @@
 
 
 
-#define SCREEN_WIDTH 81
+#define SCREEN_WIDTH 25
 #define SCREEN_HEIGHT 25
 #define LEN (((SCREEN_WIDTH + 1) * SCREEN_HEIGHT) + 1)
 
@@ -28,12 +28,13 @@ char screen[LEN] = { '\0' };
 void draw_frame(char screen[], int max_h, int max_w, int len);
 void xy_to_colrow(Ball* ball_ptr);
 void draw_ball(Ball* ball_ptr, int max_h, int max_w, char screen[]);
+void update_ball_coords(Ball* ball_ptr, int max_h, int max_w);
 
 int main() {
 	b.x = SCREEN_WIDTH / 2.0;
 	b.y = SCREEN_HEIGHT / 2.0;
-	b.x_v = 0.0;
-	b.y_v = 0.0;
+	b.x_v = 0.1;
+	b.y_v = 0.05;
 	b.row = 0;
 	b.col = 0;
 
@@ -49,20 +50,21 @@ int main() {
 		// Print string on terminal
 		printf("%s\n", screen); // Actual draw on terminal
 		// Calculate new ball position
+		update_ball_coords(b_ptr, SCREEN_HEIGHT, SCREEN_WIDTH);
 
 		//sleep:
-		#ifdef _WIN32
-		Sleep(100);
-		#else
-		usleep(100);  /* sleep for 100 milliSeconds */
-		#endif
+		//#ifdef _WIN32
+		//Sleep(10);
+		//#else
+		//usleep(10);  /* sleep for 100 milliSeconds */
+		//#endif
 
 		#ifdef _WIN32
 		system("cls");
 		#else
 		system("clear");
 		#endif
-	}
+	}GIT S
 
 }
 
@@ -97,8 +99,8 @@ void draw_frame(char screen[], int max_h, int max_w, int len) {
 }
 
 void xy_to_colrow(Ball* ball_ptr) {
-	ball_ptr->col = (int)round(ball_ptr->x);
-	ball_ptr->row = (int)round(ball_ptr->y);
+	ball_ptr->col = (int)round(ball_ptr->x)-1;
+	ball_ptr->row = (int)round(ball_ptr->y)-1;
 	printf("col %d row %d x %.2f y %.2f\n", (int)ball_ptr->col, (int)ball_ptr->row, ball_ptr->x, ball_ptr->y);
 }
 
@@ -112,6 +114,24 @@ void draw_ball(Ball* ball_ptr, int max_h, int max_w, char screen[]) {
 		++row_count;
 	}
 	i += ball_ptr->col;
-
+	
 	screen[i] = '*';
+}
+
+void update_ball_coords(Ball* ball_ptr, int max_h, int max_w) {
+	if (ball_ptr->row >= max_h - 1) {
+		ball_ptr->y_v *= -1.0;
+	}
+	else if (ball_ptr->row <= 1) {
+		ball_ptr->y_v *= -1.0;
+	}
+	else if (ball_ptr->col >= max_w - 1) {
+		ball_ptr->x_v *= -1.0;
+	}
+	else if (ball_ptr->col <= 1) {
+		ball_ptr->x_v *= -1.0;
+	}
+
+	ball_ptr->x += ball_ptr->x_v;
+	ball_ptr->y += ball_ptr->y_v;
 }
