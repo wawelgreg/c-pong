@@ -10,7 +10,7 @@
 
 
 
-#define SCREEN_WIDTH 25
+#define SCREEN_WIDTH 85
 #define SCREEN_HEIGHT 25
 #define LEN (((SCREEN_WIDTH + 1) * SCREEN_HEIGHT) + 1)
 
@@ -22,7 +22,20 @@ typedef struct ball {
 	int row;
 	int col;
 } Ball;
+
+typedef struct p_one {
+	int row;
+	unsigned int score;
+} PlayerOne;
+
+typedef struct p_two {
+	int row;
+	unsigned int score;
+} PlayerTwo;
+
 Ball b;
+PlayerOne p_one;
+PlayerTwo p_two;
 char screen[LEN] = { '\0' };
 
 void draw_frame(char screen[], int max_h, int max_w, int len);
@@ -33,8 +46,8 @@ void update_ball_coords(Ball* ball_ptr, int max_h, int max_w);
 int main() {
 	b.x = SCREEN_WIDTH / 2.0;
 	b.y = SCREEN_HEIGHT / 2.0;
-	b.x_v = 0.1;
-	b.y_v = 0.05;
+	b.x_v = 0.32;
+	b.y_v = 0.1;
 	b.row = 0;
 	b.col = 0;
 
@@ -52,19 +65,20 @@ int main() {
 		// Calculate new ball position
 		update_ball_coords(b_ptr, SCREEN_HEIGHT, SCREEN_WIDTH);
 
-		//sleep:
-		//#ifdef _WIN32
-		//Sleep(10);
-		//#else
-		//usleep(10);  /* sleep for 100 milliSeconds */
-		//#endif
-
+		sleep:
 		#ifdef _WIN32
+		Sleep(10);
+		#else
+		usleep(10);  /* sleep for some milliSeconds */
+		#endif
+
+		/*#ifdef _WIN32
 		system("cls");
 		#else
 		system("clear");
-		#endif
-	}GIT S
+		#endif*/
+		printf("\033[0;0H");
+	}
 
 }
 
@@ -81,7 +95,7 @@ void draw_frame(char screen[], int max_h, int max_w, int len) {
 
 		if ((row != 0 && row != max_h) && col < max_w) {
 			if (col == 0 || col == max_w - 1) {
-				screen[i++] = '#';
+				screen[i++] = ' '; // Previously '#'
 			}
 			else {
 				screen[i++] = ' ';
@@ -101,7 +115,7 @@ void draw_frame(char screen[], int max_h, int max_w, int len) {
 void xy_to_colrow(Ball* ball_ptr) {
 	ball_ptr->col = (int)round(ball_ptr->x)-1;
 	ball_ptr->row = (int)round(ball_ptr->y)-1;
-	printf("col %d row %d x %.2f y %.2f\n", (int)ball_ptr->col, (int)ball_ptr->row, ball_ptr->x, ball_ptr->y);
+	printf("[col%4d row%4d x %4.2f y %4.2f]\n", (int)ball_ptr->col, (int)ball_ptr->row, ball_ptr->x, ball_ptr->y);
 }
 
 void draw_ball(Ball* ball_ptr, int max_h, int max_w, char screen[]) {
@@ -119,16 +133,16 @@ void draw_ball(Ball* ball_ptr, int max_h, int max_w, char screen[]) {
 }
 
 void update_ball_coords(Ball* ball_ptr, int max_h, int max_w) {
-	if (ball_ptr->row >= max_h - 1) {
+	if (ball_ptr->y + ball_ptr->y_v >= max_h - 1) {
 		ball_ptr->y_v *= -1.0;
 	}
-	else if (ball_ptr->row <= 1) {
+	else if (ball_ptr->y + ball_ptr->y_v <= 2) {
 		ball_ptr->y_v *= -1.0;
 	}
-	else if (ball_ptr->col >= max_w - 1) {
+	else if (ball_ptr->x + ball_ptr->x_v >= max_w - 1) {
 		ball_ptr->x_v *= -1.0;
 	}
-	else if (ball_ptr->col <= 1) {
+	else if (ball_ptr->x + ball_ptr->x_v <= 2) {
 		ball_ptr->x_v *= -1.0;
 	}
 
