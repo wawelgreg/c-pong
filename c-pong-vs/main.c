@@ -25,31 +25,23 @@ typedef struct ball {
 	int col;
 } Ball;
 
-typedef struct p_one {
+typedef struct player {
 	int row;
 	unsigned int score;
 	int up_key;
 	int down_key;
-} PlayerOne;
-
-typedef struct p_two {
-	int row;
-	unsigned int score;
-	int up_key;
-	int down_key;
-} PlayerTwo;
+} Player;
 
 Ball b;
-PlayerOne p_one;
-PlayerTwo p_two;
+Player p_one;
+Player p_two;
 char screen[LEN] = { '\0' };
 
 void draw_frame(char screen[], int max_h, int max_w, int len);
 void xy_to_colrow(Ball* ball_ptr);
 void draw_ball(Ball* ball_ptr, int max_h, int max_w, char screen[]);
 void update_ball_coords(Ball* ball_ptr, int max_h, int max_w);
-void take_player_one_input(PlayerOne* p_ptr);
-void take_player_two_input(PlayerTwo* p_ptr);
+void take_player_input(Player* p_ptr);
 
 int main() {
 	b.x = SCREEN_WIDTH / 2.0;
@@ -62,11 +54,11 @@ int main() {
 
 	p_one.score = 0;
 	p_one.row = (int)ceil(SCREEN_HEIGHT / 2);
-	struct PlayerOne* p_one_pointer;
+	struct Player* p_one_ptr;
 
 	p_two.score = 0;
 	p_two.row = (int)ceil(SCREEN_HEIGHT / 2);
-	struct PlayerTwo* p_two_pointer;
+	struct Player* p_two_ptr;
 
 	while (1) {
 		// Draw border to screen string
@@ -171,10 +163,6 @@ void update_ball_coords(Ball* ball_ptr, int max_h, int max_w) {
 	ball_ptr->y += ball_ptr->y_v;
 }
 
-void take_player_one_input(PlayerOne* p_ptr) {
-
-}
-
-void take_player_two_input(PlayerTwo* p_ptr) {
+void take_player_input(Player* p_ptr) {
 
 }
