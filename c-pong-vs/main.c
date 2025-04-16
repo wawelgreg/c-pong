@@ -54,27 +54,32 @@ int main() {
 
 	p_one.score = 0;
 	p_one.row = (int)ceil(SCREEN_HEIGHT / 2);
-	struct Player* p_one_ptr;
+	struct Player* p_one_ptr = &p_one;
 
 	p_two.score = 0;
 	p_two.row = (int)ceil(SCREEN_HEIGHT / 2);
-	struct Player* p_two_ptr;
+	struct Player* p_two_ptr = &p_two;
 
 	while (1) {
 		// Draw border to screen string
 		draw_frame(screen, SCREEN_HEIGHT, SCREEN_WIDTH, LEN);
 
 		// Take user one and two input
-
+		take_player_input(p_one_ptr);
+		take_player_input(p_two_ptr);
 
 		// Draw player paddle locations
+		// TODO
 
 		// Convert ball x/y -> row/col
 		xy_to_colrow(b_ptr);
+
 		// Draw ball to screen string
 		draw_ball(b_ptr, SCREEN_HEIGHT, SCREEN_WIDTH, screen);
+
 		// Print string on terminal
 		printf("%s\n", screen); // Actual draw on terminal
+
 		// Calculate new ball position
 		update_ball_coords(b_ptr, SCREEN_HEIGHT, SCREEN_WIDTH);
 
