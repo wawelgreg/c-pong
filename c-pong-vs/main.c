@@ -10,7 +10,6 @@
 #endif
 
 
-
 #define SCREEN_WIDTH 85
 #define SCREEN_HEIGHT 25
 #define PADDLE_WIDTH 5
@@ -32,18 +31,19 @@ typedef struct player {
 	int down_key;
 } Player;
 
-Ball b;
-Player p_one;
-Player p_two;
-char screen[LEN] = { '\0' };
-
 void draw_frame(char screen[], int max_h, int max_w, int len);
 void xy_to_colrow(Ball* ball_ptr);
 void draw_ball(Ball* ball_ptr, int max_h, int max_w, char screen[]);
 void update_ball_coords(Ball* ball_ptr, int max_h, int max_w);
 void take_player_input(Player* p_ptr);
+void print_player_details(Player* p_one_ptr, Player* p_two_ptr);
 
 int main() {
+	Ball b;
+	Player p_one;
+	Player p_two;
+	char screen[LEN] = { '\0' };
+
 	b.x = SCREEN_WIDTH / 2.0;
 	b.y = SCREEN_HEIGHT / 2.0;
 	b.x_v = 0.32;
@@ -54,10 +54,14 @@ int main() {
 
 	p_one.score = 0;
 	p_one.row = (int)ceil(SCREEN_HEIGHT / 2);
+	p_one.up_key = 'w';
+	p_one.down_key = 's';
 	struct Player* p_one_ptr = &p_one;
 
 	p_two.score = 0;
 	p_two.row = (int)ceil(SCREEN_HEIGHT / 2);
+	p_two.up_key = 72; // Up arrow key (supposedly)
+	p_two.down_key = 80; // Down arrow key (supposedly)
 	struct Player* p_two_ptr = &p_two;
 
 	while (1) {
@@ -67,6 +71,9 @@ int main() {
 		// Take user one and two input
 		take_player_input(p_one_ptr);
 		take_player_input(p_two_ptr);
+		
+		// Display player info
+		print_player_details(p_one_ptr, p_two_ptr);
 
 		// Draw player paddle locations
 		// TODO
@@ -169,5 +176,15 @@ void update_ball_coords(Ball* ball_ptr, int max_h, int max_w) {
 }
 
 void take_player_input(Player* p_ptr) {
+	int key_code = 0;
+	if (_kbhit()) {
+		key_code = _getch();
+		// todo
+	}
+}
 
+void print_player_details(Player* p_one_ptr, Player* p_two_ptr) {
+	printf("P1: %2d P2: %2d P1_row: %2d P2_row: %2d\n",
+		p_one_ptr->score, p_two_ptr->score,
+		p_one_ptr->row, p_two_ptr->row);
 }
