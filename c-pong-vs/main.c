@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <conio.h>
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -12,6 +13,7 @@
 
 #define SCREEN_WIDTH 85
 #define SCREEN_HEIGHT 25
+#define PADDLE_WIDTH 5
 #define LEN (((SCREEN_WIDTH + 1) * SCREEN_HEIGHT) + 1)
 
 typedef struct ball {
@@ -26,11 +28,15 @@ typedef struct ball {
 typedef struct p_one {
 	int row;
 	unsigned int score;
+	int up_key;
+	int down_key;
 } PlayerOne;
 
 typedef struct p_two {
 	int row;
 	unsigned int score;
+	int up_key;
+	int down_key;
 } PlayerTwo;
 
 Ball b;
@@ -42,6 +48,8 @@ void draw_frame(char screen[], int max_h, int max_w, int len);
 void xy_to_colrow(Ball* ball_ptr);
 void draw_ball(Ball* ball_ptr, int max_h, int max_w, char screen[]);
 void update_ball_coords(Ball* ball_ptr, int max_h, int max_w);
+void take_player_one_input(PlayerOne* p_ptr);
+void take_player_two_input(PlayerTwo* p_ptr);
 
 int main() {
 	b.x = SCREEN_WIDTH / 2.0;
@@ -50,12 +58,25 @@ int main() {
 	b.y_v = 0.1;
 	b.row = 0;
 	b.col = 0;
-
 	struct Ball* b_ptr = &b;
+
+	p_one.score = 0;
+	p_one.row = (int)ceil(SCREEN_HEIGHT / 2);
+	struct PlayerOne* p_one_pointer;
+
+	p_two.score = 0;
+	p_two.row = (int)ceil(SCREEN_HEIGHT / 2);
+	struct PlayerTwo* p_two_pointer;
 
 	while (1) {
 		// Draw border to screen string
 		draw_frame(screen, SCREEN_HEIGHT, SCREEN_WIDTH, LEN);
+
+		// Take user one and two input
+
+
+		// Draw player paddle locations
+
 		// Convert ball x/y -> row/col
 		xy_to_colrow(b_ptr);
 		// Draw ball to screen string
@@ -148,4 +169,12 @@ void update_ball_coords(Ball* ball_ptr, int max_h, int max_w) {
 
 	ball_ptr->x += ball_ptr->x_v;
 	ball_ptr->y += ball_ptr->y_v;
+}
+
+void take_player_one_input(PlayerOne* p_ptr) {
+
+}
+
+void take_player_two_input(PlayerTwo* p_ptr) {
+
 }
