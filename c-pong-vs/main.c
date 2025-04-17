@@ -9,7 +9,7 @@
 #include <unistd.h>
 #endif
 
-
+#define SLEEP_MS 2
 #define SCREEN_WIDTH 85
 #define SCREEN_HEIGHT 25
 #define PADDLE_WIDTH 5
@@ -26,6 +26,7 @@ typedef struct ball {
 
 typedef struct player {
 	int row;
+	int col;
 	unsigned int score;
 	int up_key;
 	int down_key;
@@ -39,31 +40,37 @@ void take_player_input(Player* p_ptr);
 void print_player_details(Player* p_one_ptr, Player* p_two_ptr);
 
 int main() {
-	Ball b;
-	Player p_one;
-	Player p_two;
-	char screen[LEN] = { '\0' };
+	Ball b = {
+		SCREEN_WIDTH / 2.0,				// x
+		SCREEN_HEIGHT / 2.0,			// y
+		0.32,							// x_v
+		0.1,							// y_v
+		0,								// row
+		0								// col
+	};
 
-	b.x = SCREEN_WIDTH / 2.0;
-	b.y = SCREEN_HEIGHT / 2.0;
-	b.x_v = 0.32;
-	b.y_v = 0.1;
-	b.row = 0;
-	b.col = 0;
+	Player p_one = {
+		0,								// score
+		(int)ceil(SCREEN_HEIGHT / 2),	// row
+		0,								// col
+		'w',							// up_key
+		's'								// down_key
+	};
+
+	Player p_two = {
+		0,								// score
+		(int)ceil(SCREEN_HEIGHT / 2),	// row
+		0,								// col
+		72,								// up_key
+		80								// down_key
+	};
+
 	struct Ball* b_ptr = &b;
-
-	p_one.score = 0;
-	p_one.row = (int)ceil(SCREEN_HEIGHT / 2);
-	p_one.up_key = 'w';
-	p_one.down_key = 's';
 	struct Player* p_one_ptr = &p_one;
-
-	p_two.score = 0;
-	p_two.row = (int)ceil(SCREEN_HEIGHT / 2);
-	p_two.up_key = 72; // Up arrow key (supposedly)
-	p_two.down_key = 80; // Down arrow key (supposedly)
 	struct Player* p_two_ptr = &p_two;
 
+	char screen[LEN] = { '\0' };		// Game frame string
+	
 	while (1) {
 		// Draw border to screen string
 		draw_frame(screen, SCREEN_HEIGHT, SCREEN_WIDTH, LEN);
@@ -92,9 +99,9 @@ int main() {
 
 		sleep:
 		#ifdef _WIN32
-		Sleep(10);
+		Sleep(SLEEP_MS);
 		#else
-		usleep(10);  /* sleep for some milliSeconds */
+		usleep(SLEEP_MS);  /* sleep for some milliSeconds */
 		#endif
 
 		/*#ifdef _WIN32
