@@ -207,7 +207,6 @@ void draw_paddle(char screen[], Player* p_ptr) {
 		screen[i] = p_ptr->paddle_char;
 		i += SCREEN_WIDTH + 1;
 	}
-
 }
 
 void print_player_details(Player* p_one_ptr, Player* p_two_ptr) {
