@@ -12,7 +12,7 @@
 #define SLEEP_MS 10
 #define SCREEN_WIDTH 60
 #define SCREEN_HEIGHT 25
-#define PADDLE_WIDTH 5
+#define PADDLE_WIDTH 10
 #define LEN (((SCREEN_WIDTH + 1) * SCREEN_HEIGHT) + 1)
 
 typedef struct ball {
@@ -56,7 +56,7 @@ int main() {
 		0,								// score
 		(int)ceil(SCREEN_HEIGHT / 2),	// row
 		0,								// col
-		9,								// paddle width
+		PADDLE_WIDTH,					// paddle width
 		'|',							// paddle character
 		'w',							// up_key
 		's'								// down_key
@@ -66,7 +66,7 @@ int main() {
 		0,								// score
 		(int)ceil(SCREEN_HEIGHT / 2),	// row
 		SCREEN_WIDTH-1,					// col
-		9,								// paddle width
+		PADDLE_WIDTH,					// paddle width
 		'|',							// paddle character
 		72,								// up_key
 		80								// down_key
@@ -193,8 +193,13 @@ void take_player_input(Player* p_ptr, int max_h) {
 		if (key_code == p_ptr->up_key && p_ptr->row - floor(p_ptr->paddle_width / 2) - 1 > 0) {
 			p_ptr->row -= 1;
 		}
-		else if (key_code == p_ptr->down_key && p_ptr->row + (p_ptr->paddle_width / 2) + 1 < max_h - 1) {
-			p_ptr->row += 1;
+		else if (key_code == p_ptr->down_key) {
+			if (p_ptr->paddle_width % 2 != 0 && p_ptr->row + floor(p_ptr->paddle_width / 2) + 1 < max_h - 1) {
+				p_ptr->row += 1;
+			}
+			else if (p_ptr->row + floor(p_ptr->paddle_width / 2) < max_h - 1) {
+				p_ptr->row += 1;
+			}
 		}
 	}
 }
