@@ -9,7 +9,7 @@
 #include <unistd.h>
 #endif
 
-#define SLEEP_MS 2
+#define SLEEP_MS 1
 #define SCREEN_WIDTH 85
 #define SCREEN_HEIGHT 25
 #define PADDLE_WIDTH 5
@@ -60,7 +60,7 @@ int main() {
 	Player p_two = {
 		0,								// score
 		(int)ceil(SCREEN_HEIGHT / 2),	// row
-		0,								// col
+		SCREEN_WIDTH-1,								// col
 		72,								// up_key
 		80								// down_key
 	};
