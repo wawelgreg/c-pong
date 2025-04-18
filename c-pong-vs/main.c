@@ -25,9 +25,10 @@ typedef struct ball {
 } Ball;
 
 typedef struct player {
+	unsigned int score;
 	int row;
 	int col;
-	unsigned int score;
+	unsigned int paddle_width;
 	int up_key;
 	int down_key;
 } Player;
@@ -37,6 +38,7 @@ void xy_to_colrow(Ball* ball_ptr);
 void draw_ball(Ball* ball_ptr, int max_h, int max_w, char screen[]);
 void update_ball_coords(Ball* ball_ptr, int max_h, int max_w);
 void take_player_input(Player* p_ptr);
+void draw_paddle(char screen[], Player* p_ptr);
 void print_player_details(Player* p_one_ptr, Player* p_two_ptr);
 
 int main() {
@@ -52,7 +54,8 @@ int main() {
 	Player p_one = {
 		0,								// score
 		(int)ceil(SCREEN_HEIGHT / 2),	// row
-		0,								// col
+		1,								// col
+		3,								// paddle width
 		'w',							// up_key
 		's'								// down_key
 	};
@@ -60,7 +63,8 @@ int main() {
 	Player p_two = {
 		0,								// score
 		(int)ceil(SCREEN_HEIGHT / 2),	// row
-		SCREEN_WIDTH-1,								// col
+		SCREEN_WIDTH-2,					// col
+		3,								// paddle width
 		72,								// up_key
 		80								// down_key
 	};
@@ -78,12 +82,12 @@ int main() {
 		// Take user one and two input
 		take_player_input(p_one_ptr);
 		take_player_input(p_two_ptr);
+
+		// Draw player paddle locations
+		draw_paddle(screen, p_one_ptr);
 		
 		// Display player info
 		print_player_details(p_one_ptr, p_two_ptr);
-
-		// Draw player paddle locations
-		// TODO
 
 		// Convert ball x/y -> row/col
 		xy_to_colrow(b_ptr);
@@ -188,6 +192,20 @@ void take_player_input(Player* p_ptr) {
 		key_code = _getch();
 		// todo
 	}
+}
+
+void draw_paddle(char screen[], Player* p_ptr) {
+	int i = 0;
+	int col = p_ptr->col;
+	int row = p_ptr->row - (p_ptr->paddle_width / 2);
+
+	i = (row * (SCREEN_WIDTH + 1)) + col;
+	screen[i] = '|';
+
+	/*for (j = 0; j < p_ptr->paddle_width; ++j) {
+
+	}*/
+
 }
 
 void print_player_details(Player* p_one_ptr, Player* p_two_ptr) {
