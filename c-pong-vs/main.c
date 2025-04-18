@@ -112,11 +112,7 @@ int main() {
 		usleep(SLEEP_MS);  /* sleep for some milliSeconds */
 		#endif
 
-		/*#ifdef _WIN32
-		system("cls");
-		#else
-		system("clear");
-		#endif*/
+		// Move cursor to beginning of terminal
 		printf("\033[0;0H");
 	}
 
