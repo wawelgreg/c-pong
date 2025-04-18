@@ -9,8 +9,8 @@
 #include <unistd.h>
 #endif
 
-#define SLEEP_MS 1
-#define SCREEN_WIDTH 85
+#define SLEEP_MS 10
+#define SCREEN_WIDTH 60
 #define SCREEN_HEIGHT 25
 #define PADDLE_WIDTH 5
 #define LEN (((SCREEN_WIDTH + 1) * SCREEN_HEIGHT) + 1)
@@ -38,7 +38,7 @@ void draw_frame(char screen[], int max_h, int max_w, int len);
 void xy_to_colrow(Ball* ball_ptr);
 void draw_ball(Ball* ball_ptr, int max_h, int max_w, char screen[]);
 void update_ball_coords(Ball* ball_ptr, int max_h, int max_w);
-void take_player_input(Player* p_ptr);
+void take_player_input(Player* p_ptr, int max_h);
 void draw_paddle(char screen[], Player* p_ptr);
 void print_player_details(Player* p_one_ptr, Player* p_two_ptr);
 
@@ -55,8 +55,8 @@ int main() {
 	Player p_one = {
 		0,								// score
 		(int)ceil(SCREEN_HEIGHT / 2),	// row
-		1,								// col
-		3,								// paddle width
+		0,								// col
+		9,								// paddle width
 		'|',							// paddle character
 		'w',							// up_key
 		's'								// down_key
@@ -65,8 +65,8 @@ int main() {
 	Player p_two = {
 		0,								// score
 		(int)ceil(SCREEN_HEIGHT / 2),	// row
-		SCREEN_WIDTH-2,					// col
-		3,								// paddle width
+		SCREEN_WIDTH-1,					// col
+		9,								// paddle width
 		'|',							// paddle character
 		72,								// up_key
 		80								// down_key
@@ -83,8 +83,8 @@ int main() {
 		draw_frame(screen, SCREEN_HEIGHT, SCREEN_WIDTH, LEN);
 
 		// Take user one and two input
-		take_player_input(p_one_ptr);
-		take_player_input(p_two_ptr);
+		take_player_input(p_one_ptr, SCREEN_HEIGHT);
+		take_player_input(p_two_ptr, SCREEN_HEIGHT);
 
 		// Draw player paddle locations
 		draw_paddle(screen, p_one_ptr);
@@ -190,11 +190,16 @@ void update_ball_coords(Ball* ball_ptr, int max_h, int max_w) {
 	ball_ptr->y += ball_ptr->y_v;
 }
 
-void take_player_input(Player* p_ptr) {
+void take_player_input(Player* p_ptr, int max_h) {
 	int key_code = 0;
 	if (_kbhit()) {
 		key_code = _getch();
-		// todo
+		if (key_code == p_ptr->up_key && p_ptr->row - floor(p_ptr->paddle_width / 2) - 1 > 0) {
+			p_ptr->row -= 1;
+		}
+		else if (key_code == p_ptr->down_key && p_ptr->row + (p_ptr->paddle_width / 2) + 1 < max_h - 1) {
+			p_ptr->row += 1;
+		}
 	}
 }
 
