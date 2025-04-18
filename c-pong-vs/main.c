@@ -29,6 +29,7 @@ typedef struct player {
 	int row;
 	int col;
 	unsigned int paddle_width;
+	int paddle_char;
 	int up_key;
 	int down_key;
 } Player;
@@ -56,6 +57,7 @@ int main() {
 		(int)ceil(SCREEN_HEIGHT / 2),	// row
 		1,								// col
 		3,								// paddle width
+		'|',							// paddle character
 		'w',							// up_key
 		's'								// down_key
 	};
@@ -65,6 +67,7 @@ int main() {
 		(int)ceil(SCREEN_HEIGHT / 2),	// row
 		SCREEN_WIDTH-2,					// col
 		3,								// paddle width
+		'|',							// paddle character
 		72,								// up_key
 		80								// down_key
 	};
@@ -85,6 +88,7 @@ int main() {
 
 		// Draw player paddle locations
 		draw_paddle(screen, p_one_ptr);
+		draw_paddle(screen, p_two_ptr);
 		
 		// Display player info
 		print_player_details(p_one_ptr, p_two_ptr);
@@ -195,16 +199,14 @@ void take_player_input(Player* p_ptr) {
 }
 
 void draw_paddle(char screen[], Player* p_ptr) {
-	int i = 0;
 	int col = p_ptr->col;
 	int row = p_ptr->row - (p_ptr->paddle_width / 2);
+	int i = (row * (SCREEN_WIDTH + 1)) + col;
 
-	i = (row * (SCREEN_WIDTH + 1)) + col;
-	screen[i] = '|';
-
-	/*for (j = 0; j < p_ptr->paddle_width; ++j) {
-
-	}*/
+	for (int j = 0; j < p_ptr->paddle_width; ++j) {
+		screen[i] = p_ptr->paddle_char;
+		i += SCREEN_WIDTH + 1;
+	}
 
 }
 
