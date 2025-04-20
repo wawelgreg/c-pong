@@ -9,7 +9,7 @@
 #include <unistd.h>
 #endif
 
-#define SLEEP_MS 10
+#define SLEEP_MS 20
 #define SCREEN_WIDTH 60
 #define SCREEN_HEIGHT 25
 #define PADDLE_WIDTH 10
@@ -42,8 +42,8 @@ typedef struct player {
 void draw_frame(char screen[], int max_h, int max_w, int len);
 void xy_to_colrow(Ball* ball_ptr);
 void draw_ball(Ball* ball_ptr, int max_h, int max_w, char screen[]);
-void check_for_collision(Ball* ball_ptr,int max_h, int max_w);
-void check_for_collision(Ball* ball_ptr, int max_h, int max_w);
+void check_for_paddle_on_vector(char screen[], Ball* ball_ptr, int max_w);
+void check_for_collision(char screen[], Ball* ball_ptr, int max_h, int max_w);
 void update_ball_coords(Ball* ball_ptr);
 void take_player_input(Player* p_ptr, int max_h);
 void draw_paddle(char screen[], Player* p_ptr, int max_w);
@@ -64,8 +64,8 @@ int main() {
 	Player p_one = {
 		0,								// score
 		(int)ceil(SCREEN_HEIGHT / 2),	// row
-		0,								// col
-		1,					// paddle width
+		3,								// col
+		PADDLE_WIDTH,					// paddle width
 		'|',							// paddle character
 		'w',							// up_key
 		's'								// down_key
@@ -74,7 +74,7 @@ int main() {
 	Player p_two = {
 		0,								// score
 		(int)ceil(SCREEN_HEIGHT / 2),	// row
-		SCREEN_WIDTH-1,					// col
+		SCREEN_WIDTH-4,					// col
 		PADDLE_WIDTH,					// paddle width
 		'|',							// paddle character
 		72,								// up_key
@@ -111,8 +111,10 @@ int main() {
 		// Print string on terminal
 		printf("%s\n", screen); // Actual draw on terminal
 
+		check_for_paddle_on_vector(screen, b_ptr, SCREEN_WIDTH);
+
 		// Change vector of ball as necessary
-		check_for_collision(b_ptr, SCREEN_HEIGHT, SCREEN_WIDTH);
+		check_for_collision(screen, b_ptr, SCREEN_HEIGHT, SCREEN_WIDTH);
 
 		// Calculate new ball position
 		update_ball_coords(b_ptr);
@@ -180,7 +182,15 @@ void draw_ball(Ball* ball_ptr, int max_h, int max_w, char screen[]) {
 	screen[i] = '*';
 }
 
-void check_for_collision(Ball* ball_ptr, int max_h, int max_w) {
+void check_for_paddle_on_vector(char screen[], Ball* ball_ptr, int max_w) {
+	char projected_vector_char = get_char_at_rowcol(screen, ((int)round(ball_ptr->y) - 1), ((int)round(ball_ptr->x + ball_ptr->x_v) - 1), max_w);
+	if (projected_vector_char == '|') {
+		ball_ptr->x_v *= -1.0;
+	}
+}
+
+void check_for_collision(char screen[], Ball* ball_ptr, int max_h, int max_w) {
+	
 	if (ball_ptr->y + ball_ptr->y_v >= max_h - 1) {
 		ball_ptr->y_v *= -1.0;
 	}
