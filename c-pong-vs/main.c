@@ -189,6 +189,10 @@ void check_for_paddle_on_vector(char screen[], Ball* ball_ptr, int max_w) {
 	}
 }
 
+char get_char_at_rowcol(char screen[], int row, int col, int max_w) {
+	return screen[(row * (max_w + 1)) + col];
+}
+
 void check_for_collision(char screen[], Ball* ball_ptr, int max_h, int max_w) {
 	
 	if (ball_ptr->y + ball_ptr->y_v >= max_h - 1) {
@@ -245,6 +249,3 @@ void print_player_details(Player* p_one_ptr, Player* p_two_ptr) {
 		p_one_ptr->row, p_two_ptr->row);
 }
 
-char get_char_at_rowcol(char screen[], int row, int col, int max_w) {
-	return screen[(row * (max_w + 1)) + col];
-}
