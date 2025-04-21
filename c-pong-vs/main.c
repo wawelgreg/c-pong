@@ -50,14 +50,14 @@ typedef struct player {
 	int down_key;
 } Player;
 
-void draw_frame(char screen[], int max_h, int max_w, int len);
+void draw_frame(char screen[], Game* g_ptr, int len);
 void xy_to_colrow(Ball* ball_ptr);
-void draw_ball(Ball* ball_ptr, int max_h, int max_w, char screen[]);
-void check_for_paddle_on_vector(char screen[], Ball* ball_ptr, int max_w);
-void check_for_collision(char screen[], Ball* ball_ptr, int max_h, int max_w);
+void draw_ball(Ball* ball_ptr, Game* g_ptr, char screen[]);
+void check_for_paddle_on_vector(char screen[], Ball* ball_ptr, Game* g_ptr);
+void check_for_collision(char screen[], Ball* ball_ptr, Game* g_ptr);
 void update_ball_coords(Ball* ball_ptr);
-void take_player_input(Player* p_ptr, int max_h);
-void draw_paddle(char screen[], Player* p_ptr, int max_w);
+void take_player_input(Player* p_ptr, Game* g_ptr);
+void draw_paddle(char screen[], Player* p_ptr, Game* g_ptr);
 void print_player_details(Player* p_one_ptr, Player* p_two_ptr);
 char get_char_at_rowcol(char screen[], int row, int col, int max_w);
 
@@ -115,15 +115,15 @@ int main() {
 
 
 		// Draw border to screen string
-		draw_frame(screen, SCREEN_HEIGHT, SCREEN_WIDTH, LEN);
+		draw_frame(screen, g_ptr, LEN);
 
 		// Take user one and two input
-		take_player_input(p_one_ptr, SCREEN_HEIGHT);
-		take_player_input(p_two_ptr, SCREEN_HEIGHT);
+		take_player_input(p_one_ptr, g_ptr);
+		take_player_input(p_two_ptr, g_ptr);
 
 		// Draw player paddle locations
-		draw_paddle(screen, p_one_ptr, SCREEN_WIDTH);
-		draw_paddle(screen, p_two_ptr, SCREEN_WIDTH);
+		draw_paddle(screen, p_one_ptr, g_ptr);
+		draw_paddle(screen, p_two_ptr, g_ptr);
 		
 		// Display player info
 		print_player_details(p_one_ptr, p_two_ptr);
@@ -132,15 +132,15 @@ int main() {
 		xy_to_colrow(b_ptr);
 
 		// Draw ball to screen string
-		draw_ball(b_ptr, SCREEN_HEIGHT, SCREEN_WIDTH, screen);
+		draw_ball(b_ptr, g_ptr, screen);
 
 		// Print string on terminal
 		printf("%s\n", screen); // Actual draw on terminal
 
-		check_for_paddle_on_vector(screen, b_ptr, SCREEN_WIDTH);
+		check_for_paddle_on_vector(screen, b_ptr, g_ptr);
 
 		// Change vector of ball as necessary
-		check_for_collision(screen, b_ptr, SCREEN_HEIGHT, SCREEN_WIDTH);
+		check_for_collision(screen, b_ptr, g_ptr);
 
 		// Calculate new ball position
 		update_ball_coords(b_ptr);
@@ -158,19 +158,19 @@ int main() {
 
 }
 
-void draw_frame(char screen[], int max_h, int max_w, int len) {
+void draw_frame(char screen[], Game* g_ptr, int len) {
 	int i = 0;
 	int row = 0;
 	int col = 0;
 	while (i < len - 2) {
-		if ((row == 0 || row == max_h - 1) && col < max_w) {
+		if ((row == 0 || row == g_ptr->screen_h - 1) && col < g_ptr->screen_w) {
 			screen[i++] = '#';
 			++col;
 			continue;
 		}
 
-		if ((row != 0 && row != max_h) && col < max_w) {
-			if (col == 0 || col == max_w - 1) {
+		if ((row != 0 && row != g_ptr->screen_h) && col < g_ptr->screen_w) {
+			if (col == 0 || col == g_ptr->screen_w - 1) {
 				screen[i++] = ' '; // Previously '#'
 			}
 			else {
@@ -194,13 +194,13 @@ void xy_to_colrow(Ball* ball_ptr) {
 	printf("[col%4d row%4d x %4.2f y %4.2f]\n", (int)ball_ptr->col, (int)ball_ptr->row, ball_ptr->x, ball_ptr->y);
 }
 
-void draw_ball(Ball* ball_ptr, int max_h, int max_w, char screen[]) {
+void draw_ball(Ball* ball_ptr, Game* g_ptr, char screen[]) {
 	int i = 0;
 	int row_count = 0;
 	int col_count = 0;
 
 	while (row_count < ball_ptr->row) {
-		i += (max_w + 1);
+		i += (g_ptr->screen_w + 1);
 		++row_count;
 	}
 	i += ball_ptr->col;
@@ -208,12 +208,12 @@ void draw_ball(Ball* ball_ptr, int max_h, int max_w, char screen[]) {
 	screen[i] = '0';
 }
 
-void check_for_paddle_on_vector(char screen[], Ball* ball_ptr, int max_w) {
+void check_for_paddle_on_vector(char screen[], Ball* ball_ptr, Game* g_ptr) {
 	char projected_vector_char = 
 		get_char_at_rowcol(screen, 
 			((int)round(ball_ptr->y) - 1), 
 			((int)round(ball_ptr->x + ball_ptr->x_v) - 1), 
-			max_w);
+			g_ptr->screen_w);
 
 	if (projected_vector_char == '|') {
 		switch (ball_ptr->ball_ownership) {
@@ -235,15 +235,15 @@ char get_char_at_rowcol(char screen[], int row, int col, int max_w) {
 	return screen[(row * (max_w + 1)) + col];
 }
 
-void check_for_collision(char screen[], Ball* ball_ptr, int max_h, int max_w) {
+void check_for_collision(char screen[], Ball* ball_ptr, Game* g_ptr) {
 	
-	if (ball_ptr->y + ball_ptr->y_v >= max_h - 1) {
+	if (ball_ptr->y + ball_ptr->y_v >= g_ptr->screen_h - 1) {
 		ball_ptr->y_v *= -1.0;
 	}
 	else if (ball_ptr->y + ball_ptr->y_v <= 2) {
 		ball_ptr->y_v *= -1.0;
 	}
-	else if (ball_ptr->x + ball_ptr->x_v >= max_w - 1) {
+	else if (ball_ptr->x + ball_ptr->x_v >= g_ptr->screen_w - 1) {
 		ball_ptr->x_v *= -1.0;
 	}
 	else if (ball_ptr->x + ball_ptr->x_v <= 2) {
@@ -256,7 +256,7 @@ void update_ball_coords(Ball* ball_ptr) {
 	ball_ptr->y += ball_ptr->y_v;
 }
 
-void take_player_input(Player* p_ptr, int max_h) {
+void take_player_input(Player* p_ptr, Game* g_ptr) {
 	int key_code = 0;
 	if (_kbhit()) {
 		key_code = _getch();
@@ -264,24 +264,24 @@ void take_player_input(Player* p_ptr, int max_h) {
 			p_ptr->row -= 1;
 		}
 		else if (key_code == p_ptr->down_key) {
-			if (p_ptr->paddle_width % 2 != 0 && p_ptr->row + floor(p_ptr->paddle_width / 2) + 1 < max_h - 1) {
+			if (p_ptr->paddle_width % 2 != 0 && p_ptr->row + floor(p_ptr->paddle_width / 2) + 1 < g_ptr->screen_h - 1) {
 				p_ptr->row += 1;
 			}
-			else if (p_ptr->row + floor(p_ptr->paddle_width / 2) < max_h - 1) {
+			else if (p_ptr->row + floor(p_ptr->paddle_width / 2) < g_ptr->screen_h - 1) {
 				p_ptr->row += 1;
 			}
 		}
 	}
 }
 
-void draw_paddle(char screen[], Player* p_ptr, int max_w) {
+void draw_paddle(char screen[], Player* p_ptr, Game* g_ptr) {
 	int col = p_ptr->col;
 	int row = p_ptr->row - (p_ptr->paddle_width / 2);
-	int i = (row * (max_w + 1)) + col;
+	int i = (row * (g_ptr->screen_w + 1)) + col;
 
 	for (int j = 0; j < p_ptr->paddle_width; ++j) {
 		screen[i] = p_ptr->paddle_char;
-		i += max_w + 1;
+		i += g_ptr->screen_w + 1;
 	}
 }
 
