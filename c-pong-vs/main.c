@@ -23,6 +23,13 @@ enum game_state {
 	START = 1, POINT_SCORED
 };
 
+typedef struct game {
+	unsigned int screen_w;
+	unsigned int screen_h;
+	int game_state;
+	unsigned int sleep_ms;
+} Game;
+
 typedef struct ball {
 	float x;
 	float y;
@@ -55,6 +62,13 @@ void print_player_details(Player* p_one_ptr, Player* p_two_ptr);
 char get_char_at_rowcol(char screen[], int row, int col, int max_w);
 
 int main() {
+	Game g = {
+		SCREEN_WIDTH,
+		SCREEN_HEIGHT,
+		START,
+		SLEEP_MS
+	};
+
 	Ball b = {
 		SCREEN_WIDTH / 2.0,				// x
 		SCREEN_HEIGHT / 2.0,			// y
@@ -85,6 +99,7 @@ int main() {
 		80								// down_key
 	};
 
+	struct Game* g_ptr = &g;
 	struct Ball* b_ptr = &b;
 	struct Player* p_one_ptr = &p_one;
 	struct Player* p_two_ptr = &p_two;
@@ -92,6 +107,13 @@ int main() {
 	char screen[LEN] = { '\0' };		// Game frame string
 	
 	while (1) {
+		switch (1)
+		{
+		default:
+			break;
+		}
+
+
 		// Draw border to screen string
 		draw_frame(screen, SCREEN_HEIGHT, SCREEN_WIDTH, LEN);
 
@@ -183,11 +205,16 @@ void draw_ball(Ball* ball_ptr, int max_h, int max_w, char screen[]) {
 	}
 	i += ball_ptr->col;
 	
-	screen[i] = '*';
+	screen[i] = '0';
 }
 
 void check_for_paddle_on_vector(char screen[], Ball* ball_ptr, int max_w) {
-	char projected_vector_char = get_char_at_rowcol(screen, ((int)round(ball_ptr->y) - 1), ((int)round(ball_ptr->x + ball_ptr->x_v) - 1), max_w);
+	char projected_vector_char = 
+		get_char_at_rowcol(screen, 
+			((int)round(ball_ptr->y) - 1), 
+			((int)round(ball_ptr->x + ball_ptr->x_v) - 1), 
+			max_w);
+
 	if (projected_vector_char == '|') {
 		switch (ball_ptr->ball_ownership) {
 		case P_ONES_BALL:
@@ -200,7 +227,7 @@ void check_for_paddle_on_vector(char screen[], Ball* ball_ptr, int max_w) {
 			break;
 		}
 		ball_ptr->x_v *= -1.0;
-	}
+	} 
 	printf("Ownership of ball: %d\n", ball_ptr->ball_ownership);
 }
 
