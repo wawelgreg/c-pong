@@ -16,7 +16,7 @@
 #define LEN (((SCREEN_WIDTH + 1) * SCREEN_HEIGHT) + 1)
 
 enum state {
-	P_ONE_BALL = 1, P_TWO_BALL
+	P_ONES_BALL = 1, P_TWOS_BALL
 };
 
 typedef struct ball {
@@ -58,7 +58,7 @@ int main() {
 		0.1,							// y_v
 		0,								// row
 		0,								// col
-		P_ONE_BALL
+		P_ONES_BALL
 	};
 
 	Player p_one = {
@@ -185,8 +185,19 @@ void draw_ball(Ball* ball_ptr, int max_h, int max_w, char screen[]) {
 void check_for_paddle_on_vector(char screen[], Ball* ball_ptr, int max_w) {
 	char projected_vector_char = get_char_at_rowcol(screen, ((int)round(ball_ptr->y) - 1), ((int)round(ball_ptr->x + ball_ptr->x_v) - 1), max_w);
 	if (projected_vector_char == '|') {
+		switch (ball_ptr->ball_ownership) {
+		case P_ONES_BALL:
+			ball_ptr->ball_ownership = P_TWOS_BALL;
+			break;
+		case P_TWOS_BALL:
+			ball_ptr->ball_ownership = P_ONES_BALL;
+			break;
+		default:
+			break;
+		}
 		ball_ptr->x_v *= -1.0;
 	}
+	printf("Ownership of ball: %d\n", ball_ptr->ball_ownership);
 }
 
 char get_char_at_rowcol(char screen[], int row, int col, int max_w) {
