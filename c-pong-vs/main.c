@@ -15,8 +15,12 @@
 #define PADDLE_WIDTH 10
 #define LEN (((SCREEN_WIDTH + 1) * SCREEN_HEIGHT) + 1)
 
-enum state {
+enum ownership_state {
 	P_ONES_BALL = 1, P_TWOS_BALL
+};
+
+enum game_state {
+	START = 1, POINT_SCORED
 };
 
 typedef struct ball {
@@ -259,4 +263,3 @@ void print_player_details(Player* p_one_ptr, Player* p_two_ptr) {
 		p_one_ptr->score, p_two_ptr->score,
 		p_one_ptr->row, p_two_ptr->row);
 }
-
