@@ -13,14 +13,14 @@
 #define SCREEN_WIDTH 60
 #define SCREEN_HEIGHT 25
 #define PADDLE_WIDTH 10
-#define LEN (((SCREEN_WIDTH + 1) * SCREEN_HEIGHT) + 1)
+#define LEN (unsigned int)(((SCREEN_WIDTH + 1) * SCREEN_HEIGHT) + 1)
 
 enum ownership_state {
 	P_ONES_BALL = 1, P_TWOS_BALL
 };
 
 enum game_state {
-	START = 1, POINT_SCORED
+	START = 0, NEW_BALL, POINT_SCORED
 };
 
 typedef struct game {
@@ -50,7 +50,7 @@ typedef struct player {
 	int down_key;
 } Player;
 
-void draw_frame(char screen[], Game* g_ptr, int len);
+void draw_frame(char screen[], Game* g_ptr, unsigned int len);
 void xy_to_colrow(Ball* ball_ptr);
 void draw_ball(Ball* ball_ptr, Game* g_ptr, char screen[]);
 void check_for_paddle_on_vector(char screen[], Ball* ball_ptr, Game* g_ptr);
@@ -72,8 +72,8 @@ int main() {
 	Ball b = {
 		SCREEN_WIDTH / 2.0,				// x
 		SCREEN_HEIGHT / 2.0,			// y
-		0.32,							// x_v
-		0.1,							// y_v
+		0.32f,							// x_v
+		0.1f,							// y_v
 		0,								// row
 		0,								// col
 		P_ONES_BALL
@@ -99,16 +99,18 @@ int main() {
 		80								// down_key
 	};
 
-	struct Game* g_ptr = &g;
-	struct Ball* b_ptr = &b;
-	struct Player* p_one_ptr = &p_one;
-	struct Player* p_two_ptr = &p_two;
+	Game* g_ptr = &g;
+	Ball* b_ptr = &b;
+	Player* p_one_ptr = &p_one;
+	Player* p_two_ptr = &p_two;
 
 	char screen[LEN] = { '\0' };		// Game frame string
-	
+
 	while (1) {
-		switch (1)
+		switch (g_ptr->game_state)
 		{
+		case START:
+			break;
 		default:
 			break;
 		}
@@ -145,7 +147,6 @@ int main() {
 		// Calculate new ball position
 		update_ball_coords(b_ptr);
 
-		sleep:
 		#ifdef _WIN32
 		Sleep(SLEEP_MS);
 		#else
@@ -158,10 +159,10 @@ int main() {
 
 }
 
-void draw_frame(char screen[], Game* g_ptr, int len) {
-	int i = 0;
-	int row = 0;
-	int col = 0;
+void draw_frame(char screen[], Game* g_ptr, unsigned int len) {
+	unsigned int i = 0;
+	unsigned int row = 0;
+	unsigned int col = 0;
 	while (i < len - 2) {
 		if ((row == 0 || row == g_ptr->screen_h - 1) && col < g_ptr->screen_w) {
 			screen[i++] = '#';
@@ -279,7 +280,7 @@ void draw_paddle(char screen[], Player* p_ptr, Game* g_ptr) {
 	int row = p_ptr->row - (p_ptr->paddle_width / 2);
 	int i = (row * (g_ptr->screen_w + 1)) + col;
 
-	for (int j = 0; j < p_ptr->paddle_width; ++j) {
+	for (unsigned int j = 0; j < p_ptr->paddle_width; ++j) {
 		screen[i] = p_ptr->paddle_char;
 		i += g_ptr->screen_w + 1;
 	}
