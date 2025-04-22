@@ -21,7 +21,7 @@ enum ownership_state {
 };
 
 enum game_state {
-	START = 0, NEW_BALL, POINT_SCORED
+	START = 0, NEW_BALL, BALL_IN_PLAY, POINT_SCORED
 };
 
 typedef struct game {
@@ -51,6 +51,9 @@ typedef struct player {
 	int down_key;
 } Player;
 
+void pick_random_ball_owner(Ball* ball_ptr);
+void set_random_ball_spawn_height(Ball* ball_ptr, Game* g_ptr);
+void set_random_ball_vector(Ball* ball_ptr);
 void draw_frame(char screen[], Game* g_ptr, unsigned int len);
 void xy_to_colrow(Ball* ball_ptr);
 void draw_ball(Ball* ball_ptr, Game* g_ptr, char screen[]);
@@ -73,8 +76,8 @@ int main() {
 	Ball b = {
 		SCREEN_WIDTH / 2.0,				// x
 		SCREEN_HEIGHT / 2.0,			// y
-		0.32f,							// x_v
-		0.1f,							// y_v
+		0.0f,							// x_v
+		0.0f,							// y_v
 		0,								// row
 		0,								// col
 		P_ONES_BALL
@@ -112,9 +115,18 @@ int main() {
 		switch (g_ptr->game_state)
 		{
 		case START:
-			pick_start_player(g_ptr);
+			// Draw border to screen string
+			draw_frame(screen, g_ptr, LEN);
+			pick_random_ball_owner(g_ptr);
+			g_ptr->game_state = NEW_BALL;
 			break;
 		case NEW_BALL:
+			// Draw border to screen string
+			draw_frame(screen, g_ptr, LEN);
+			set_random_ball_spawn_height(b_ptr, g_ptr);
+			g_ptr->game_state = BALL_IN_PLAY;
+			break;
+		case BALL_IN_PLAY:
 			// Draw border to screen string
 			draw_frame(screen, g_ptr, LEN);
 
@@ -145,7 +157,6 @@ int main() {
 
 			// Calculate new ball position
 			update_ball_coords(b_ptr);
-
 			break;
 		case POINT_SCORED:
 			break;
@@ -154,9 +165,9 @@ int main() {
 		}
 
 		#ifdef _WIN32
-		Sleep(SLEEP_MS);
+		Sleep(g_ptr->sleep_ms);
 		#else
-		usleep(SLEEP_MS);  /* sleep for some milliSeconds */
+		usleep(g_ptr->sleep_ms);
 		#endif
 
 		// Move cursor to beginning of terminal
@@ -165,8 +176,21 @@ int main() {
 
 }
 
-void pick_random_ball_direction(Ball* ball_ptr) {
-	// rand() % 2 == 0 ? ball_ptr->ball_ownership = P_ONES_BALL : ball_ptr->ball_ownership = P_TWOS_BALL;
+void pick_random_ball_owner(Ball* ball_ptr) {
+	if (rand() % 2 == 0) {
+		ball_ptr->ball_ownership = P_ONES_BALL;
+	}
+	else {
+		ball_ptr->ball_ownership = P_TWOS_BALL;
+	}
+}
+
+void set_random_ball_spawn_height(Ball* ball_ptr, Game* g_ptr) {
+	ball_ptr->y = (rand() % ((g_ptr->screen_h - 1) - 1 + 1)) + 1;
+}
+
+void set_random_ball_vector(Ball* ball_ptr) {
+	// TODO: Set x and y vectors based on ball ownership (left or right start direction)
 }
 
 void draw_frame(char screen[], Game* g_ptr, unsigned int len) {
@@ -202,7 +226,9 @@ void draw_frame(char screen[], Game* g_ptr, unsigned int len) {
 void xy_to_colrow(Ball* ball_ptr) {
 	ball_ptr->col = (int)round(ball_ptr->x)-1;
 	ball_ptr->row = (int)round(ball_ptr->y)-1;
-	printf("[col%4d row%4d x %4.2f y %4.2f]\n", (int)ball_ptr->col, (int)ball_ptr->row, ball_ptr->x, ball_ptr->y);
+	printf("[col%4d row%4d x %4.2f y %4.2f]\n", (int)ball_ptr->col, 
+												(int)ball_ptr->row, 
+												ball_ptr->x, ball_ptr->y);
 }
 
 void draw_ball(Ball* ball_ptr, Game* g_ptr, char screen[]) {
@@ -271,11 +297,13 @@ void take_player_input(Player* p_ptr, Game* g_ptr) {
 	int key_code = 0;
 	if (_kbhit()) {
 		key_code = _getch();
-		if (key_code == p_ptr->up_key && p_ptr->row - floor(p_ptr->paddle_width / 2) - 1 > 0) {
+		if (key_code == p_ptr->up_key && p_ptr->row 
+			- floor(p_ptr->paddle_width / 2) - 1 > 0) {
 			p_ptr->row -= 1;
 		}
 		else if (key_code == p_ptr->down_key) {
-			if (p_ptr->paddle_width % 2 != 0 && p_ptr->row + floor(p_ptr->paddle_width / 2) + 1 < g_ptr->screen_h - 1) {
+			if (p_ptr->paddle_width % 2 != 0 && p_ptr->row 
+				+ floor(p_ptr->paddle_width / 2) + 1 < g_ptr->screen_h - 1) {
 				p_ptr->row += 1;
 			}
 			else if (p_ptr->row + floor(p_ptr->paddle_width / 2) < g_ptr->screen_h - 1) {
