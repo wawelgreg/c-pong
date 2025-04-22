@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <conio.h>
+#include <time.h>
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -105,47 +106,52 @@ int main() {
 	Player* p_two_ptr = &p_two;
 
 	char screen[LEN] = { '\0' };		// Game frame string
+	srand(time(NULL));
 
 	while (1) {
 		switch (g_ptr->game_state)
 		{
 		case START:
+			pick_start_player(g_ptr);
+			break;
+		case NEW_BALL:
+			// Draw border to screen string
+			draw_frame(screen, g_ptr, LEN);
+
+			// Take user one and two input
+			take_player_input(p_one_ptr, g_ptr);
+			take_player_input(p_two_ptr, g_ptr);
+
+			// Draw player paddle locations
+			draw_paddle(screen, p_one_ptr, g_ptr);
+			draw_paddle(screen, p_two_ptr, g_ptr);
+
+			// Display player info
+			print_player_details(p_one_ptr, p_two_ptr);
+
+			// Convert ball x/y -> row/col
+			xy_to_colrow(b_ptr);
+
+			// Draw ball to screen string
+			draw_ball(b_ptr, g_ptr, screen);
+
+			// Print string on terminal
+			printf("%s\n", screen); // Actual draw on terminal
+
+			check_for_paddle_on_vector(screen, b_ptr, g_ptr);
+
+			// Change vector of ball as necessary
+			check_for_collision(screen, b_ptr, g_ptr);
+
+			// Calculate new ball position
+			update_ball_coords(b_ptr);
+
+			break;
+		case POINT_SCORED:
 			break;
 		default:
 			break;
 		}
-
-
-		// Draw border to screen string
-		draw_frame(screen, g_ptr, LEN);
-
-		// Take user one and two input
-		take_player_input(p_one_ptr, g_ptr);
-		take_player_input(p_two_ptr, g_ptr);
-
-		// Draw player paddle locations
-		draw_paddle(screen, p_one_ptr, g_ptr);
-		draw_paddle(screen, p_two_ptr, g_ptr);
-		
-		// Display player info
-		print_player_details(p_one_ptr, p_two_ptr);
-
-		// Convert ball x/y -> row/col
-		xy_to_colrow(b_ptr);
-
-		// Draw ball to screen string
-		draw_ball(b_ptr, g_ptr, screen);
-
-		// Print string on terminal
-		printf("%s\n", screen); // Actual draw on terminal
-
-		check_for_paddle_on_vector(screen, b_ptr, g_ptr);
-
-		// Change vector of ball as necessary
-		check_for_collision(screen, b_ptr, g_ptr);
-
-		// Calculate new ball position
-		update_ball_coords(b_ptr);
 
 		#ifdef _WIN32
 		Sleep(SLEEP_MS);
@@ -157,6 +163,10 @@ int main() {
 		printf("\033[0;0H");
 	}
 
+}
+
+void pick_random_ball_direction(Ball* ball_ptr) {
+	// rand() % 2 == 0 ? ball_ptr->ball_ownership = P_ONES_BALL : ball_ptr->ball_ownership = P_TWOS_BALL;
 }
 
 void draw_frame(char screen[], Game* g_ptr, unsigned int len) {
