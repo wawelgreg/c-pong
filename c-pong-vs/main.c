@@ -184,7 +184,7 @@ int main() {
 		#ifdef _WIN32
 		Sleep(g_ptr->sleep_ms);
 		#else
-		usleep(g_ptr->sleep_ms);
+		usleep(g_ptr->sleep_ms*1000);
 		#endif
 
 		// Move cursor to beginning of terminal
