@@ -36,6 +36,7 @@ typedef struct ball {
 	float y;
 	float x_v;
 	float y_v;
+	float magnitude;
 	int row;
 	int col;
 	int ball_ownership;
@@ -78,9 +79,10 @@ int main() {
 		SCREEN_HEIGHT / 2.0,			// y
 		0.0f,							// x_v
 		0.0f,							// y_v
+		0.2f,							// magnitude
 		0,								// row
 		0,								// col
-		P_ONES_BALL
+		P_ONES_BALL						// ball ownership
 	};
 
 	Player p_one = {
@@ -89,8 +91,8 @@ int main() {
 		3,								// col
 		PADDLE_WIDTH,					// paddle width
 		'|',							// paddle character
-		'w',							// up_key
-		's'								// down_key
+		'w',							// up key
+		's'								// down key
 	};
 
 	Player p_two = {
@@ -99,8 +101,8 @@ int main() {
 		SCREEN_WIDTH-4,					// col
 		PADDLE_WIDTH,					// paddle width
 		'|',							// paddle character
-		72,								// up_key
-		80								// down_key
+		72,								// up key
+		80								// down key
 	};
 
 	Game* g_ptr = &g;
@@ -124,6 +126,8 @@ int main() {
 			// Draw border to screen string
 			draw_frame(screen, g_ptr, LEN);
 			set_random_ball_spawn_height(b_ptr, g_ptr);
+			pick_random_ball_owner(b_ptr);
+			set_random_ball_vector(b_ptr);
 			g_ptr->game_state = BALL_IN_PLAY;
 			break;
 		case BALL_IN_PLAY:
@@ -191,6 +195,33 @@ void set_random_ball_spawn_height(Ball* ball_ptr, Game* g_ptr) {
 
 void set_random_ball_vector(Ball* ball_ptr) {
 	// TODO: Set x and y vectors based on ball ownership (left or right start direction)
+	int angle = 0;
+	switch (ball_ptr->ball_ownership) {
+	case P_ONES_BALL:
+		// Right direction
+		switch (rand() % 2)
+		{
+		case 0:
+			angle = rand() % (55 - 0 + 1) + 0;
+			break;
+		case 1:
+			angle = rand() % (359 - 304 + 1) + 304;
+			break;
+		default:
+			break;
+		}
+		break;
+	case P_TWOS_BALL:
+		// Left directiom
+		angle = rand() % (235 - 125 + 1) + 125;
+		break;
+	default:
+		break;
+	}
+
+	// Set-up x and y velocities
+	ball_ptr->x_v = ball_ptr->magnitude * cos(angle * (3.14159 / 180));
+	ball_ptr->y_v = ball_ptr->magnitude * sin(angle * (3.14159 / 180));
 }
 
 void draw_frame(char screen[], Game* g_ptr, unsigned int len) {
