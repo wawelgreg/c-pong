@@ -10,6 +10,7 @@
 #include <unistd.h>
 #endif
 
+#define SCORED_WAIT 70
 #define SLEEP_MS 20
 #define SCREEN_WIDTH 60
 #define SCREEN_HEIGHT 25
@@ -110,45 +111,42 @@ int main() {
 	Player* p_one_ptr = &p_one;
 	Player* p_two_ptr = &p_two;
 
-	unsigned int wait_units = 300;
+	unsigned int wait_units = SCORED_WAIT;
 	unsigned int count_up = 0;
 	char screen[LEN] = { '\0' };		// Game frame string
 	srand(time(NULL));
 
+	// Game running / frames / input
 	while (1) {
+
+		// Take user one and two input
+		take_player_input(p_one_ptr, g_ptr);
+		take_player_input(p_two_ptr, g_ptr);
+
+		// Draw border to screen string
+		draw_frame(screen, g_ptr, LEN);
+
+		// Display player info
+		print_player_details(p_one_ptr, p_two_ptr);
+
+		// Draw player paddle locations
+		draw_paddle(screen, p_one_ptr, g_ptr);
+		draw_paddle(screen, p_two_ptr, g_ptr);
+
 		switch (g_ptr->game_state)
 		{
 		case START:
-			// Draw border to screen string
-			draw_frame(screen, g_ptr, LEN);
 			pick_random_ball_owner(g_ptr);
 			g_ptr->game_state = NEW_BALL;
 			break;
 
 		case NEW_BALL:
-			// Draw border to screen string
-			draw_frame(screen, g_ptr, LEN);
 			set_random_ball_spawn_height(b_ptr, g_ptr);
-			pick_random_ball_owner(b_ptr);
 			set_random_ball_vector(b_ptr);
 			g_ptr->game_state = BALL_IN_PLAY;
 			break;
 
 		case BALL_IN_PLAY:
-			// Draw border to screen string
-			draw_frame(screen, g_ptr, LEN);
-
-			// Take user one and two input
-			take_player_input(p_one_ptr, g_ptr);
-			take_player_input(p_two_ptr, g_ptr);
-
-			// Draw player paddle locations
-			draw_paddle(screen, p_one_ptr, g_ptr);
-			draw_paddle(screen, p_two_ptr, g_ptr);
-
-			// Display player info
-			print_player_details(p_one_ptr, p_two_ptr);
-
 			// Convert ball x/y -> row/col
 			xy_to_colrow(b_ptr);
 
@@ -168,6 +166,15 @@ int main() {
 			break;
 
 		case POINT_SCORED:
+			// Print string on terminal
+			printf("%s\n", screen); // Actual draw on terminal
+
+			++count_up;
+
+			if (count_up >= wait_units) {
+				count_up = 0;
+				g_ptr->game_state = NEW_BALL;
+			}
 			break;
 
 		default:
@@ -264,9 +271,9 @@ void draw_frame(char screen[], Game* g_ptr, unsigned int len) {
 void xy_to_colrow(Ball* ball_ptr) {
 	ball_ptr->col = (int)round(ball_ptr->x)-1;
 	ball_ptr->row = (int)round(ball_ptr->y)-1;
-	printf("[col%4d row%4d x %4.2f y %4.2f]\n", (int)ball_ptr->col, 
+	/*printf("[col%4d row%4d x %4.2f y %4.2f]\n", (int)ball_ptr->col, 
 												(int)ball_ptr->row, 
-												ball_ptr->x, ball_ptr->y);
+												ball_ptr->x, ball_ptr->y);*/
 }
 
 void draw_ball(Ball* ball_ptr, Game* g_ptr, char screen[]) {
@@ -321,7 +328,7 @@ void check_for_collision(char screen[], Ball* ball_ptr, Game* g_ptr, Player* p_o
 	else if (ball_ptr->x + ball_ptr->x_v >= g_ptr->screen_w - 1) {
 		// P1 scored
 		++p_one_ptr->score;
-		g_ptr->game_state = NEW_BALL;
+		g_ptr->game_state = POINT_SCORED;
 		return;
 
 		// ball_ptr->x_v *= -1.0;
@@ -329,7 +336,7 @@ void check_for_collision(char screen[], Ball* ball_ptr, Game* g_ptr, Player* p_o
 	else if (ball_ptr->x + ball_ptr->x_v <= 2) {
 		// P2 scored
 		++p_two_ptr->score;
-		g_ptr->game_state = NEW_BALL;
+		g_ptr->game_state = POINT_SCORED;
 		return;
 
 		// ball_ptr->x_v *= -1.0;
