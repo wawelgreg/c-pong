@@ -59,7 +59,7 @@ void draw_frame(char screen[], Game* g_ptr, unsigned int len);
 void xy_to_colrow(Ball* ball_ptr);
 void draw_ball(Ball* ball_ptr, Game* g_ptr, char screen[]);
 void check_for_paddle_on_vector(char screen[], Ball* ball_ptr, Game* g_ptr);
-void check_for_collision(char screen[], Ball* ball_ptr, Game* g_ptr);
+void check_for_collision(char screen[], Ball* ball_ptr, Game* g_ptr, Player* p_one_ptr, Player* p_two_ptr);
 void update_ball_coords(Ball* ball_ptr);
 void take_player_input(Player* p_ptr, Game* g_ptr);
 void draw_paddle(char screen[], Player* p_ptr, Game* g_ptr);
@@ -79,7 +79,7 @@ int main() {
 		SCREEN_HEIGHT / 2.0,			// y
 		0.0f,							// x_v
 		0.0f,							// y_v
-		0.2f,							// magnitude
+		0.45f,							// magnitude
 		0,								// row
 		0,								// col
 		P_ONES_BALL						// ball ownership
@@ -110,6 +110,8 @@ int main() {
 	Player* p_one_ptr = &p_one;
 	Player* p_two_ptr = &p_two;
 
+	unsigned int wait_units = 300;
+	unsigned int count_up = 0;
 	char screen[LEN] = { '\0' };		// Game frame string
 	srand(time(NULL));
 
@@ -122,6 +124,7 @@ int main() {
 			pick_random_ball_owner(g_ptr);
 			g_ptr->game_state = NEW_BALL;
 			break;
+
 		case NEW_BALL:
 			// Draw border to screen string
 			draw_frame(screen, g_ptr, LEN);
@@ -130,6 +133,7 @@ int main() {
 			set_random_ball_vector(b_ptr);
 			g_ptr->game_state = BALL_IN_PLAY;
 			break;
+
 		case BALL_IN_PLAY:
 			// Draw border to screen string
 			draw_frame(screen, g_ptr, LEN);
@@ -157,13 +161,15 @@ int main() {
 			check_for_paddle_on_vector(screen, b_ptr, g_ptr);
 
 			// Change vector of ball as necessary
-			check_for_collision(screen, b_ptr, g_ptr);
+			check_for_collision(screen, b_ptr, g_ptr, p_one_ptr, p_two_ptr);
 
 			// Calculate new ball position
 			update_ball_coords(b_ptr);
 			break;
+
 		case POINT_SCORED:
 			break;
+
 		default:
 			break;
 		}
@@ -190,7 +196,8 @@ void pick_random_ball_owner(Ball* ball_ptr) {
 }
 
 void set_random_ball_spawn_height(Ball* ball_ptr, Game* g_ptr) {
-	ball_ptr->y = (rand() % ((g_ptr->screen_h - 1) - 1 + 1)) + 1;
+	ball_ptr->x = g_ptr->screen_w / 2.0;
+	ball_ptr->y = (rand() % ((g_ptr->screen_h - 3) - 3 + 1)) + 3;
 }
 
 void set_random_ball_vector(Ball* ball_ptr) {
@@ -303,7 +310,7 @@ char get_char_at_rowcol(char screen[], int row, int col, int max_w) {
 	return screen[(row * (max_w + 1)) + col];
 }
 
-void check_for_collision(char screen[], Ball* ball_ptr, Game* g_ptr) {
+void check_for_collision(char screen[], Ball* ball_ptr, Game* g_ptr, Player* p_one_ptr, Player* p_two_ptr) {
 	
 	if (ball_ptr->y + ball_ptr->y_v >= g_ptr->screen_h - 1) {
 		ball_ptr->y_v *= -1.0;
@@ -312,10 +319,20 @@ void check_for_collision(char screen[], Ball* ball_ptr, Game* g_ptr) {
 		ball_ptr->y_v *= -1.0;
 	}
 	else if (ball_ptr->x + ball_ptr->x_v >= g_ptr->screen_w - 1) {
-		ball_ptr->x_v *= -1.0;
+		// P1 scored
+		++p_one_ptr->score;
+		g_ptr->game_state = NEW_BALL;
+		return;
+
+		// ball_ptr->x_v *= -1.0;
 	}
 	else if (ball_ptr->x + ball_ptr->x_v <= 2) {
-		ball_ptr->x_v *= -1.0;
+		// P2 scored
+		++p_two_ptr->score;
+		g_ptr->game_state = NEW_BALL;
+		return;
+
+		// ball_ptr->x_v *= -1.0;
 	}
 }
 
