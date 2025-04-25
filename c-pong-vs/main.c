@@ -226,7 +226,7 @@ void set_random_ball_vector(Ball* ball_ptr) {
 		}
 		break;
 	case P_TWOS_BALL:
-		// Left directiom
+		// Left direction
 		angle = rand() % (235 - 125 + 1) + 125;
 		break;
 	default:
