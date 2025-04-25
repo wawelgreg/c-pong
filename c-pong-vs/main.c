@@ -14,7 +14,7 @@
 #define SLEEP_MS 20
 #define SCREEN_WIDTH 60
 #define SCREEN_HEIGHT 25
-#define PADDLE_WIDTH 10
+#define PADDLE_WIDTH 5
 #define LEN (unsigned int)(((SCREEN_WIDTH + 1) * SCREEN_HEIGHT) + 1)
 
 enum ownership_state {
