@@ -219,7 +219,6 @@ void set_random_ball_spawn_height(Ball* ball_ptr, Game* g_ptr) {
 }
 
 void set_random_ball_vector(Ball* ball_ptr) {
-	// TODO: Set x and y vectors based on ball ownership (left or right start direction)
 	int angle = 0;
 	switch (ball_ptr->ball_ownership) {
 	case P_ONES_BALL:
