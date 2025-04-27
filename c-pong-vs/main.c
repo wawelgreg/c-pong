@@ -59,10 +59,10 @@ void pick_random_ball_owner(Ball* ball_ptr);
 void set_random_ball_spawn_height(Ball* ball_ptr, Game* g_ptr);
 void set_random_ball_vector(Ball* ball_ptr);
 void draw_frame(char screen[], Game* g_ptr, unsigned int len);
-void xy_to_colrow(Ball* ball_ptr);
+void ball_xy_to_colrow(Ball* ball_ptr);
 void paddle_xy_to_colrow(Player* p_ptr);
 void draw_ball(Ball* ball_ptr, Game* g_ptr, char screen[]);
-void check_for_paddle_on_vector(char screen[], Ball* ball_ptr, Game* g_ptr);
+void check_for_paddle_on_vector(Ball* ball_ptr, Game* g_ptr, Player* p_one_ptr, Player* p_two_ptr);
 void check_for_collision(char screen[], Ball* ball_ptr, Game* g_ptr, Player* p_one_ptr, Player* p_two_ptr);
 void update_ball_coords(Ball* ball_ptr);
 void take_player_input(Player* p_ptr, Game* g_ptr);
@@ -159,7 +159,7 @@ int main() {
 
 		case BALL_IN_PLAY:
 			// Convert ball x/y -> row/col
-			xy_to_colrow(b_ptr);
+			ball_xy_to_colrow(b_ptr);
 
 			// Draw ball to screen string
 			draw_ball(b_ptr, g_ptr, screen);
@@ -278,7 +278,7 @@ void draw_frame(char screen[], Game* g_ptr, unsigned int len) {
 	screen[i] = '\0';
 }
 
-void xy_to_colrow(Ball* ball_ptr) {
+void ball_xy_to_colrow(Ball* ball_ptr) {
 	ball_ptr->col = (int)round(ball_ptr->x)-1;
 	ball_ptr->row = (int)round(ball_ptr->y)-1;
 }
@@ -302,11 +302,11 @@ void draw_ball(Ball* ball_ptr, Game* g_ptr, char screen[]) {
 	screen[i] = '0';
 }
 
-void check_for_paddle_on_vector(char screen[], Ball* ball_ptr, Game* g_ptr) {
-	char projected_vector_char = 
-		get_char_at_rowcol(screen, 
-			((int)round(ball_ptr->y) - 1), 
-			((int)round(ball_ptr->x + ball_ptr->x_v) - 1), 
+void check_for_paddle_on_vector(Ball* ball_ptr, Game* g_ptr, Player* p_one_ptr, Player* p_two_ptr) {
+	/*char projected_vector_char =
+		get_char_at_rowcol(screen,
+			((int)round(ball_ptr->y) - 1),
+			((int)round(ball_ptr->x + ball_ptr->x_v) - 1),
 			g_ptr->screen_w);
 
 	if (projected_vector_char == '|') {
@@ -321,7 +321,28 @@ void check_for_paddle_on_vector(char screen[], Ball* ball_ptr, Game* g_ptr) {
 			break;
 		}
 		ball_ptr->x_v *= -1.0;
-	} 
+	} */
+
+	// Intersection of two line segments
+
+	Player** collision_paddle;
+	float alpha = 0.0;
+	float beta = 0.0;
+	float ball_proj_x = 0.0; // Projected X
+	float ball_proj_y = 0.0; // Projected Y
+
+	switch (ball_ptr->ball_ownership) {
+	case P_ONES_BALL:
+		collision_paddle = &p_two_ptr;
+		break;
+	case P_TWOS_BALL:
+		collision_paddle = &p_one_ptr;
+		break;
+	default:
+		return;
+		break;
+	}
+
 	printf("Ownership of ball: %d\n", ball_ptr->ball_ownership);
 }
 
