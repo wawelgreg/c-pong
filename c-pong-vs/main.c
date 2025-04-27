@@ -45,6 +45,8 @@ typedef struct ball {
 
 typedef struct player {
 	unsigned int score;
+	float x;
+	float y;
 	int row;
 	int col;
 	unsigned int paddle_width;
@@ -58,6 +60,7 @@ void set_random_ball_spawn_height(Ball* ball_ptr, Game* g_ptr);
 void set_random_ball_vector(Ball* ball_ptr);
 void draw_frame(char screen[], Game* g_ptr, unsigned int len);
 void xy_to_colrow(Ball* ball_ptr);
+void paddle_xy_to_colrow(Player* p_ptr);
 void draw_ball(Ball* ball_ptr, Game* g_ptr, char screen[]);
 void check_for_paddle_on_vector(char screen[], Ball* ball_ptr, Game* g_ptr);
 void check_for_collision(char screen[], Ball* ball_ptr, Game* g_ptr, Player* p_one_ptr, Player* p_two_ptr);
@@ -88,8 +91,10 @@ int main() {
 
 	Player p_one = {
 		0,								// score
-		(int)ceil(SCREEN_HEIGHT / 2),	// row
-		3,								// col
+		3.0,							// x
+		SCREEN_HEIGHT / 2.0,			// y
+		0,								// row
+		0,								// col
 		PADDLE_WIDTH,					// paddle width
 		'|',							// paddle character
 		'w',							// up key
@@ -98,8 +103,10 @@ int main() {
 
 	Player p_two = {
 		0,								// score
-		(int)ceil(SCREEN_HEIGHT / 2),	// row
-		SCREEN_WIDTH-4,					// col
+		SCREEN_WIDTH - 4.0,				// x
+		SCREEN_HEIGHT / 2.0,			// y
+		0,								// row
+		0,								// col
 		PADDLE_WIDTH,					// paddle width
 		'|',							// paddle character
 		72,								// up key
@@ -128,6 +135,10 @@ int main() {
 
 		// Display player info
 		print_player_details(p_one_ptr, p_two_ptr);
+
+		// Convert paddle x/y -> row/col
+		paddle_xy_to_colrow(p_one_ptr);
+		paddle_xy_to_colrow(p_two_ptr);
 
 		// Draw player paddle locations
 		draw_paddle(screen, p_one_ptr, g_ptr);
@@ -271,9 +282,11 @@ void draw_frame(char screen[], Game* g_ptr, unsigned int len) {
 void xy_to_colrow(Ball* ball_ptr) {
 	ball_ptr->col = (int)round(ball_ptr->x)-1;
 	ball_ptr->row = (int)round(ball_ptr->y)-1;
-	/*printf("[col%4d row%4d x %4.2f y %4.2f]\n", (int)ball_ptr->col, 
-												(int)ball_ptr->row, 
-												ball_ptr->x, ball_ptr->y);*/
+}
+
+void paddle_xy_to_colrow(Player* p_ptr) {
+	p_ptr->col = (int)round(p_ptr->x) - 1;
+	p_ptr->row = (int)round(p_ptr->y) - 1;
 }
 
 void draw_ball(Ball* ball_ptr, Game* g_ptr, char screen[]) {
@@ -352,17 +365,17 @@ void take_player_input(Player* p_ptr, Game* g_ptr) {
 	int key_code = 0;
 	if (_kbhit()) {
 		key_code = _getch();
-		if (key_code == p_ptr->up_key && p_ptr->row 
+		if (key_code == p_ptr->up_key && p_ptr->y 
 			- floor(p_ptr->paddle_width / 2) - 1 > 0) {
-			p_ptr->row -= 1;
+			p_ptr->y -= 1;
 		}
 		else if (key_code == p_ptr->down_key) {
-			if (p_ptr->paddle_width % 2 != 0 && p_ptr->row 
+			if (p_ptr->paddle_width % 2 != 0 && p_ptr->y 
 				+ floor(p_ptr->paddle_width / 2) + 1 < g_ptr->screen_h - 1) {
-				p_ptr->row += 1;
+				p_ptr->y += 1;
 			}
-			else if (p_ptr->row + floor(p_ptr->paddle_width / 2) < g_ptr->screen_h - 1) {
-				p_ptr->row += 1;
+			else if (p_ptr->y + floor(p_ptr->paddle_width / 2) < g_ptr->screen_h - 1) {
+				p_ptr->y += 1;
 			}
 		}
 	}
