@@ -167,7 +167,7 @@ int main() {
 			// Print string on terminal
 			printf("%s\n", screen); // Actual draw on terminal
 
-			check_for_paddle_on_vector(screen, b_ptr, g_ptr);
+			check_for_paddle_on_vector(b_ptr, g_ptr, p_one_ptr, p_two_ptr);
 
 			// Change vector of ball as necessary
 			check_for_collision(screen, b_ptr, g_ptr, p_one_ptr, p_two_ptr);
@@ -327,9 +327,12 @@ void check_for_paddle_on_vector(Ball* ball_ptr, Game* g_ptr, Player* p_one_ptr, 
 
 	Player** collision_paddle;
 	float alpha = 0.0;
-	float beta = 0.0;
-	float ball_proj_x = 0.0; // Projected X
-	float ball_proj_y = 0.0; // Projected Y
+	float ball_proj_x = 0.0;	// Projected X
+	float ball_proj_y = 0.0;	// Projected Y
+
+	float paddle_top_y = 0.0;	// Top point of paddle
+	float paddle_bot_y = 0.0;	// Bottom point of paddle
+	float paddle_x = 0.0;
 
 	switch (ball_ptr->ball_ownership) {
 	case P_ONES_BALL:
@@ -342,6 +345,15 @@ void check_for_paddle_on_vector(Ball* ball_ptr, Game* g_ptr, Player* p_one_ptr, 
 		return;
 		break;
 	}
+
+	// We need the values necessary for the X and Y of the top and bottom
+	// coordinates of the paddle "line" segment
+	paddle_top_y = (*collision_paddle)->y + (PADDLE_WIDTH / 2);
+	paddle_bot_y = (*collision_paddle)->y + (PADDLE_WIDTH / 2);
+	paddle_x = (*collision_paddle)->x;
+
+	/*alpha = ((abs()*())
+		/ ();*/
 
 	printf("Ownership of ball: %d\n", ball_ptr->ball_ownership);
 }
