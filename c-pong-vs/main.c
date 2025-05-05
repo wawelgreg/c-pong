@@ -329,6 +329,8 @@ void check_for_paddle_on_vector(Ball* ball_ptr, Game* g_ptr, Player* p_one_ptr, 
 	float alpha = 0.0;
 	float ball_proj_x = 0.0;	// Projected X
 	float ball_proj_y = 0.0;	// Projected Y
+	float t = 0.0;
+	float u = 0.0;
 
 	float paddle_top_y = 0.0;	// Top point of paddle
 	float paddle_bot_y = 0.0;	// Bottom point of paddle
@@ -349,13 +351,52 @@ void check_for_paddle_on_vector(Ball* ball_ptr, Game* g_ptr, Player* p_one_ptr, 
 	// We need the values necessary for the X and Y of the top and bottom
 	// coordinates of the paddle "line" segment
 	paddle_top_y = (*collision_paddle)->y + (PADDLE_WIDTH / 2);
-	paddle_bot_y = (*collision_paddle)->y + (PADDLE_WIDTH / 2);
+	paddle_bot_y = (*collision_paddle)->y - (PADDLE_WIDTH / 2);
 	paddle_x = (*collision_paddle)->x;
 
-	/*alpha = ((abs()*())
-		/ ();*/
+	ball_proj_x = ball_ptr->x + ball_ptr->x_v;
+	ball_proj_y = ball_ptr->y + ball_ptr->y_v;
+
+	// A = ball_pos
+	// B = ball_proj
+	// C = paddle_top
+	// D = paddle_bottom
+
+	// Argh......
+
+	float t_top = 
+		((paddle_x - paddle_x) * (ball_ptr->y - paddle_top_y)) 
+		- ((paddle_bot_y - paddle_top_y) * (ball_ptr->x - paddle_x));
+	float u_top = 
+		((paddle_bot_y - ball_ptr->y) * (ball_ptr->x - ball_proj_x)) 
+		- ((paddle_x - ball_ptr->x) * (ball_ptr->y - ball_proj_y));
+	float bottom = 
+		((paddle_bot_y - paddle_top_y) * (ball_proj_x - ball_ptr->x)) 
+		- ((paddle_x - paddle_x) * (ball_proj_y - ball_ptr->y));
+
+	if (bottom != 0) {
+		printf("Calc happening!!\n");
+		t = t_top / bottom;
+		u = u_top / bottom;
+		if (t >= 0 && t <= 1 && u >= 0 && u <= 1) {
+			switch (ball_ptr->ball_ownership) {
+			case P_ONES_BALL:
+				ball_ptr->ball_ownership = P_TWOS_BALL;
+				break;
+			case P_TWOS_BALL:
+				ball_ptr->ball_ownership = P_ONES_BALL;
+				break;
+			default:
+				break;
+			}
+			ball_ptr->x_v *= -1.0;
+		}
+	}
 
 	printf("Ownership of ball: %d\n", ball_ptr->ball_ownership);
+	printf("T: %.2f U: %.2f Bottom: %.2f Paddle_y: %.2f\n", t, u, bottom, paddle_top_y);
+	//printf("Bax: %.2f Bay: %.2f Prx: %.2f Pry: %.2f\n", ball_ptr->x, ball_ptr->y, ball_proj_x, ball_proj_y);
+	//printf("Ptx: %.2f Pty: %.2f Pbx: %.2f Pby: %.2f\n", paddle_x, paddle_top_y, paddle_x, paddle_bot_y);
 }
 
 char get_char_at_rowcol(char screen[], int row, int col, int max_w) {
